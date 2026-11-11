@@ -1,0 +1,12 @@
+build/
+install/
+log/
+__pycache__/
+*.pyc
+*.pyo
+*.swp
+.vscode/
+.idea/
+compile_commands.json
+frames_*.gv
+frames_*.pdf

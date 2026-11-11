@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='utf-8'?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">  
+  <link name="so101_base_link">
+    <inertial>
+      <origin xyz="0.0137179 -5.19711e-05 0.0334843" rpy="0 0 0" />
+      <mass value="0.147" />
+      <inertia ixx="0.000114686" iyy="0.000136117" izz="0.000130364" ixy="-4.59787e-07" iyz="9.75275e-08" ixz="4.97151e-06" />
+    </inertial>
+    <visual>
+      <origin xyz="-0.10816 -0.0 -0.1184" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="file://$(find horizon_description)/meshes/so101_base_link_1.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="silver" />
+    </visual>
+    <collision>
+      <origin xyz="-0.10816 -0.0 -0.1184" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="file://$(find horizon_description)/meshes/so101_base_link_1.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="so101_mount" type="fixed">
+    <origin xyz="0.10816 0.0 0.1184" rpy="0 0 0" />
+    <parent link="base_link" />
+    <child link="so101_base_link" />
+  </joint>
+</robot>

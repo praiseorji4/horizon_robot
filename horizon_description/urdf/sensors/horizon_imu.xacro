@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='utf-8'?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <link name="imu_link">
+    <inertial>
+      <origin xyz="0.0 2.450000000000206e-05 -0.0012999999999999817" rpy="0 0 0" />
+      <mass value="0.0025" />
+      <inertia ixx="0.0" iyy="0.0" izz="0.0" ixy="0.0" iyz="-0.0" ixz="0.0" />
+    </inertial>
+    <visual>
+      <origin xyz="-0.0 0.00085 -0.1206" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="file://$(find horizon_description)/meshes/imu_link_1.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="silver" />
+    </visual>
+    <collision>
+      <origin xyz="-0.0 0.00085 -0.1206" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="file://$(find horizon_description)/meshes/imu_link_1.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="imu_joint" type="fixed">
+    <origin xyz="0.0 -0.00085 0.1206" rpy="0 0 0" />
+    <parent link="base_link" />
+    <child link="imu_link" />
+  </joint>
+</robot>

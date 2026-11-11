@@ -1,0 +1,67 @@
+<?xml version='1.0' encoding='utf-8'?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <link name="oakd_link">
+    <inertial>
+      <origin xyz="-0.008325616440255229 0.00019289755549413884 0.00010124999004827717" rpy="0 0 0" />
+      <mass value="0.06100178879167756" />
+      <inertia ixx="4.8e-05" iyy="6e-06" izz="4.5e-05" ixy="0.0" iyz="0.0" ixz="0.0" />
+    </inertial>
+    <visual>
+      <origin xyz="-0.222 -0.0 -0.084" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="file://$(find horizon_description)/meshes/oakd_link_1.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="silver" />
+    </visual>
+    <collision>
+      <origin xyz="-0.222 -0.0 -0.084" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="file://$(find horizon_description)/meshes/oakd_link_1.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="camera_link">
+    <inertial>
+      <origin xyz="-0.003013781377897262 -2.318277353570963e-18 0.003516460553155819" rpy="0 0 0" />
+      <mass value="0.003" />
+      <inertia ixx="0.0" iyy="0.0" izz="0.0" ixy="0.0" iyz="0.0" ixz="-0.0" />
+    </inertial>
+    <visual>
+      <origin xyz="-0.214225 -0.0 -0.040861" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="file://$(find horizon_description)/meshes/camera_link_1.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="silver" />
+    </visual>
+    <collision>
+      <origin xyz="-0.214225 -0.0 -0.040861" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="file://$(find horizon_description)/meshes/camera_link_1.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="oakd_joint" type="fixed">
+    <origin xyz="0.222 0.0 0.084" rpy="0 0 0" />
+    <parent link="base_link" />
+    <child link="oakd_link" />
+  </joint>
+  <joint name="camera_joint" type="fixed">
+    <origin xyz="0.214225 0.0 0.040861" rpy="0 0 0" />
+    <parent link="base_link" />
+    <child link="camera_link" />
+  </joint>
+
+  <link name="picam_frame" />
+  <joint name="picam_frame_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0.523599 0" />
+    <parent link="camera_link" />
+    <child link="picam_frame" />
+  </joint>
+  <link name="picam_optical_frame" />
+  <joint name="picam_optical_frame_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="-1.5708 0 -1.5708" />
+    <parent link="picam_frame" />
+    <child link="picam_optical_frame" />
+  </joint>
+</robot>

@@ -1,0 +1,59 @@
+<?xml version='1.0' encoding='utf-8'?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <link name="lidar_link">
+    <inertial>
+      <origin xyz="9.501500587299368e-05 -1.0980874706253633e-05 -0.0012299309339783293" rpy="0 0 0" />
+      <mass value="0.04499999999999963" />
+      <inertia ixx="9e-06" iyy="9e-06" izz="9e-06" ixy="0.0" iyz="-0.0" ixz="0.0" />
+    </inertial>
+    <visual>
+      <origin xyz="-0.0 -0.0 -0.1725" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="file://$(find horizon_description)/meshes/lidar_link_1.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="silver" />
+    </visual>
+    <collision>
+      <origin xyz="-0.0 -0.0 -0.1725" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="file://$(find horizon_description)/meshes/lidar_link_1.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="lidar_joint" type="fixed">
+    <origin xyz="0.0 0.0 0.1725" rpy="0 0 0" />
+    <parent link="base_link" />
+    <child link="lidar_link" />
+  </joint>
+
+
+  <gazebo reference="lidar_link">
+    <sensor name="lidar" type="gpu_lidar">
+      <gz_frame_id>lidar_link</gz_frame_id>
+      <topic>scan</topic>
+      <pose>0 0 0 0 0 0</pose>
+      <update_rate>10</update_rate>
+      <always_on>true</always_on>
+      <visualize>true</visualize>
+      <lidar>
+        <scan>
+          <horizontal>
+            <samples>360</samples>
+            <min_angle>${-pi}</min_angle>
+            <max_angle>${pi}</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.35</min>
+          <max>15.0</max>
+        </range>
+      </lidar>
+    </sensor>
+  </gazebo>
+</robot>
+
+
+
+
+

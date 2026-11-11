@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='utf-8'?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="horizon_bot">
+  <xacro:arg name="use_arm" default="false"/>
+  <xacro:arg name="drive" default="gz"/>
+  <xacro:arg name="system" default="diff" />
+  <xacro:arg name="controllers_file" default=""/>
+
+  <!--Turning args to property to allow for robotness -->
+  <xacro:property name="drive" value="$(arg drive)" />
+  <xacro:property name="system" value="$(arg system)"/>
+
+  <!--Include Files-->
+  <xacro:include filename="$(find horizon_description)/urdf/materials.xacro" />
+  <xacro:include filename="$(find horizon_description)/urdf/base/horizon_mobile_base.xacro" />
+  <xacro:include filename="$(find horizon_description)/urdf/wheels/horizon_wheels.xacro" />
+  <xacro:include filename="$(find horizon_description)/urdf/sensors/horizon_camera.xacro" />
+  <xacro:include filename="$(find horizon_description)/urdf/sensors/horizon_imu.xacro" />
+  <xacro:include filename="$(find horizon_description)/urdf/sensors/horizon_lidar.xacro" />
+  <xacro:include filename="$(find horizon_description)/urdf/gazebo/horizon_mobile_base.gazebo.xacro" />
+
+  <!--Arm Option-->
+  <xacro:if value="$(arg use_arm)">
+    <xacro:include filename="$(find horizon_description)/urdf/arm/horizon_arm.xacro" />
+  </xacro:if>
+
+  <!--Ros_Control Option-->
+  <xacro:if value="${drive == 'ros2_control'}">
+    <xacro:include filename="$(find horizon_description)/urdf/ros2_control/horizon_ros2_control.xacro"/>
+  </xacro:if>
+
+</robot>
