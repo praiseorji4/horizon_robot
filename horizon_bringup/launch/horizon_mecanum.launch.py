@@ -13,6 +13,7 @@ def generate_launch_description():
     description_pkg = FindPackageShare('horizon_description')
     bringup_pkg = FindPackageShare('horizon_bringup')
     slam_pkg = FindPackageShare('slam_toolbox')
+    nav_pkg = FindPackageShare('nav2_bringup')
 
     horizon_urdf_file = PathJoinSubstitution([description_pkg, 'urdf', 'horizon.urdf.xacro'])
     world_file = PathJoinSubstitution([bringup_pkg, 'worlds', 'room.sdf'])
@@ -20,6 +21,10 @@ def generate_launch_description():
     gz_launch_file = PathJoinSubstitution([FindPackageShare('ros_gz_sim'), 'launch', 'gz_sim.launch.py'])
     slam_online_async_launch_file = PathJoinSubstitution([slam_pkg, 'launch', 'online_async_launch.py'])
     slam_online_async_config_file = PathJoinSubstitution([bringup_pkg, 'config', 'mapper_params_online_async.yaml'])
+
+    nav2_launch_file = PathJoinSubstitution([nav_pkg, "launch", "navigation_launch.py"])
+    nav2_params_file = PathJoinSubstitution([bringup_pkg, 'config', 'nav2_params.yaml'])
+
 
     # Launch Arguments
     x_pos = DeclareLaunchArgument('x', default_value='0.0')
@@ -35,6 +40,7 @@ def generate_launch_description():
     system = DeclareLaunchArgument('system', default_value="mecanum")
 
     slam = DeclareLaunchArgument('slam', default_value="false")
+    nav = DeclareLaunchArgument('nav', default_value='false')
 
 
 
@@ -150,6 +156,20 @@ def generate_launch_description():
         condition=IfCondition(LaunchConfiguration('slam'))
     )
 
+    # NAV2
+    nav_bringup = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(nav2_launch_file),
+        launch_arguments={
+            'use_sim_time': 'true',
+            'params_file': nav2_params_file
+        }.items(),
+    )
+
+    launch_nav = RegisterEventHandler(
+        OnProcessExit(target_action=spawn_mecanum_controller, on_exit=[nav_bringup]),
+        condition=IfCondition(LaunchConfiguration('nav'))
+    )
+
 
     rviz_node = Node(
         package='rviz2',
@@ -160,7 +180,7 @@ def generate_launch_description():
 
 
     return LaunchDescription([
-        x_pos, y_pos, z_pos, yaw_pos, use_arm, drive, system, slam,
+        x_pos, y_pos, z_pos, yaw_pos, use_arm, drive, system, slam, nav,
         gz_launch,
         robot_state_publisher,
         spawn_horizon,
@@ -169,5 +189,6 @@ def generate_launch_description():
         launch_joint_state_controller,
         launch_controllers_diff,
         launch_slam,
+        launch_nav,
         rviz_node
     ])
