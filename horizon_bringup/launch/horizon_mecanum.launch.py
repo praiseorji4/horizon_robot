@@ -114,7 +114,8 @@ def generate_launch_description():
         executable="spawner",
         arguments=['mecanum_drive_controller', '--switch-timeout', '30', 
                    '--controller-ros-args', 
-                   '-r /mecanum_drive_controller/tf_odometry:=/tf'
+                   '-r /mecanum_drive_controller/tf_odometry:=/tf '
+                   '-r /mecanum_drive_controller/reference:=/cmd_vel'
                   ]
     )
 
@@ -227,7 +228,7 @@ def generate_launch_description():
         launch_controllers_diff,
         launch_slam,
         launch_nav,
-        ekf_node
+        ekf_node,
         rviz_node,
-        twist_stamper
+        # twist_stamper
     ])
