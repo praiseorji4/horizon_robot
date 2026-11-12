@@ -17,13 +17,19 @@ def generate_launch_description():
 
     horizon_urdf_file = PathJoinSubstitution([description_pkg, 'urdf', 'horizon.urdf.xacro'])
     world_file = PathJoinSubstitution([bringup_pkg, 'worlds', 'room.sdf'])
-    controllers_file = PathJoinSubstitution([bringup_pkg, 'config', 'horizon_controllers.yaml'])
+
+    controllers_file = PathJoinSubstitution([bringup_pkg, 
+                                             'config', 
+                                             PythonExpression(["'horizon_ekf_controllers.yaml' if '", LaunchConfiguration('ekf'), "'.lower() == 'true' else 'horizon_mecanum_controllers.yaml'" ])])
+
     gz_launch_file = PathJoinSubstitution([FindPackageShare('ros_gz_sim'), 'launch', 'gz_sim.launch.py'])
     slam_online_async_launch_file = PathJoinSubstitution([slam_pkg, 'launch', 'online_async_launch.py'])
     slam_online_async_config_file = PathJoinSubstitution([bringup_pkg, 'config', 'mapper_params_online_async.yaml'])
 
     nav2_launch_file = PathJoinSubstitution([nav_pkg, "launch", "navigation_launch.py"])
     nav2_params_file = PathJoinSubstitution([bringup_pkg, 'config', 'nav2_params.yaml'])
+
+    ekf_config_file = PathJoinSubstitution([bringup_pkg, 'config', 'horizon_ekf_params.yaml'])
 
 
     # Launch Arguments
@@ -41,6 +47,8 @@ def generate_launch_description():
 
     slam = DeclareLaunchArgument('slam', default_value="false")
     nav = DeclareLaunchArgument('nav', default_value='false')
+    ekf = DeclareLaunchArgument('ekf', default_value='false')
+
 
 
 
@@ -106,9 +114,16 @@ def generate_launch_description():
         executable="spawner",
         arguments=['mecanum_drive_controller', '--switch-timeout', '30', 
                    '--controller-ros-args', 
-                   '-r /mecanum_drive_controller/tf_odometry:=/tf '
-                   '-r /mecanum_drive_controller/reference:=/cmd_vel']
+                   '-r /mecanum_drive_controller/tf_odometry:=/tf'
+                  ]
     )
+
+    # Removed the cmd_vel remapping from here so I could use twist stamped on cmd_vel instead.
+    # Kept the full arguments code here as I want to remember that the -rs are not separated by a comma
+    # arguments=['mecanum_drive_controller', '--switch-timeout', '30', 
+    #         '--controller-ros-args', 
+    #         '-r /mecanum_drive_controller/tf_odometry:=/tf '
+    #         '-r /mecanum_drive_controller/reference:=/cmd_vel']
 
 
     ros_gz_bridge = Node(
@@ -171,6 +186,28 @@ def generate_launch_description():
     )
 
 
+    ekf_node = Node(
+        package="robot_localization",
+        executable='ekf_node',
+        name='ekf_filter_node',
+        output='screen',
+        parameters=[ekf_config_file, {'use_sim_time': 'true'}],
+        condition=IfCondition(LaunchConfiguration('ekf'))
+    )
+
+    twist_stamper = Node(
+        package="twist_stamper",
+        executable="twist_stamper",
+        parameters=[{
+            'frame_id': 'base_footprint',
+            'use_sim_time': True
+        }],
+        remappings=[
+            ('/cmd_vel_in', '/cmd_vel'),
+            ('/cmd_vel_out', '/mecanum_drive_controller/reference')
+        ]
+    )
+
     rviz_node = Node(
         package='rviz2',
         executable='rviz2',
@@ -180,7 +217,7 @@ def generate_launch_description():
 
 
     return LaunchDescription([
-        x_pos, y_pos, z_pos, yaw_pos, use_arm, drive, system, slam, nav,
+        x_pos, y_pos, z_pos, yaw_pos, use_arm, drive, system, slam, nav, ekf,
         gz_launch,
         robot_state_publisher,
         spawn_horizon,
@@ -190,5 +227,7 @@ def generate_launch_description():
         launch_controllers_diff,
         launch_slam,
         launch_nav,
-        rviz_node
+        ekf_node
+        rviz_node,
+        twist_stamper
     ])
