@@ -192,7 +192,7 @@
         <right_joint>base_front_right_wheel_joint</right_joint>
         <left_joint>base_rear_left_wheel_joint</left_joint>
         <right_joint>base_rear_right_wheel_joint</right_joint>
-        <wheel_separation>0.31</wheel_separation>
+        <wheel_separation>0.64</wheel_separation>
         <wheel_radius>${wheel_radius}</wheel_radius>
         <topic>model/horizon_bot/cmd_vel</topic>
         <frame_id>odom</frame_id>
