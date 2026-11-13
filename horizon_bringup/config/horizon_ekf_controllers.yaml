@@ -1,6 +1,6 @@
 controller_manager:
   ros__parameters:
-    update_rate: 20 # In Hz
+    update_rate: 50 # In Hz
 
 
 
@@ -35,7 +35,7 @@ diff_drive_controller:
     right_wheel_names: ["base_front_right_wheel_joint", "base_rear_right_wheel_joint"]
 
 
-    wheel_separation: 0.31
+    wheel_separation: 0.64
     wheel_radius: 0.0425
 
 
@@ -43,7 +43,7 @@ diff_drive_controller:
     base_frame_id: base_footprint
 
 
-    enable_odom_tf: true
+    enable_odom_tf: false
 
     open_loop: false
     position_feedback: true
@@ -52,6 +52,16 @@ diff_drive_controller:
 
     pose_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 0.01]
     twist_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 0.01]
+
+    linear.x.max_velocity: 0.2
+    linear.x.min_velocity: -0.2
+    linear.x.max_acceleration: 0.2
+    linear.x.max_deceleration: -0.2
+
+    angular.z.max_velocity: 0.2
+    angular.z.min_velocity: -0.2
+    angular.z.max_acceleration: 0.2
+    angular.z.max_deceleration: -0.2
 
 mecanum_drive_controller:
   ros__parameters:
@@ -76,19 +86,19 @@ mecanum_drive_controller:
 
     linear:
       x: 
-        max_velocity: 0.2 
-        max_acceleration: 1.0
-        max_deceleration: -1.0
+        max_velocity: 0.2
+        max_acceleration: 0.2
+        max_deceleration: -0.2
 
       y:
-        max_acceleration: 1.0
-        max_deceleration: -1.0
-        max_acceleration_reverse: -1.0
-        max_deceleration_reverse: 1.0
+        max_acceleration: 0.2
+        max_deceleration: -0.2
+        max_acceleration_reverse: -0.2
+        max_deceleration_reverse: 0.2
 
     angular:
       z:
-        max_acceleration: 1.0
-        max_deceleration: -1.0
-        max_acceleration_reverse: -1.0
-        max_deceleration_reverse: 1.0
+        max_acceleration: 0.2
+        max_deceleration: -0.2
+        max_acceleration_reverse: -0.2
+        max_deceleration_reverse: 0.2

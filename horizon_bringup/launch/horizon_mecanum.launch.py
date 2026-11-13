@@ -1,8 +1,8 @@
 from launch import LaunchDescription
 from launch.event_handlers import OnProcessExit
-from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, RegisterEventHandler
+from launch.actions import DeclareLaunchArgument, ExecuteProcess, IncludeLaunchDescription, RegisterEventHandler
 from launch_ros.actions import Node
-from launch.substitutions import Command, LaunchConfiguration, PathJoinSubstitution, PythonExpression
+from launch.substitutions import AndSubstitution, Command, LaunchConfiguration, PathJoinSubstitution, PythonExpression
 from launch_ros.parameter_descriptions import ParameterValue
 from launch_ros.substitutions import FindPackageShare
 from launch.conditions import IfCondition
@@ -21,6 +21,10 @@ def generate_launch_description():
     controllers_file = PathJoinSubstitution([bringup_pkg, 
                                              'config', 
                                              PythonExpression(["'horizon_ekf_controllers.yaml' if '", LaunchConfiguration('ekf'), "'.lower() == 'true' else 'horizon_mecanum_controllers.yaml'" ])])
+
+    ros_gz_bridge_config_file = PathJoinSubstitution([bringup_pkg, 
+                                                      'config', 
+                                                      PythonExpression(["'horizon_bridge_ros2_control.yaml' if '", LaunchConfiguration('drive'), "'.lower() == 'ros2_control' else 'horizon_bridge_gazebo.yaml'"])])
 
     gz_launch_file = PathJoinSubstitution([FindPackageShare('ros_gz_sim'), 'launch', 'gz_sim.launch.py'])
     slam_online_async_launch_file = PathJoinSubstitution([slam_pkg, 'launch', 'online_async_launch.py'])
@@ -100,22 +104,30 @@ def generate_launch_description():
     spawn_joint_group_velocity_controller = Node(
         package="controller_manager",
         executable="spawner",
-        arguments=['wheel_velocity_controller', '--switch-timeout', '30']
+        arguments=['wheel_velocity_controller', '--switch-timeout', '30',
+                   '--param-file', controllers_file]
     )
 
     spawn_diff_drive_controller = Node(
         package="controller_manager",
         executable='spawner',
-        arguments=['diff_drive_controller', '--switch-timeout', '30']
+        arguments=['diff_drive_controller', '--switch-timeout', '30',
+                   '--param-file', controllers_file,
+                   '--controller-ros-args', 
+                   '-r /diff_drive_controller/cmd_vel:=/cmd_vel '
+                   '-r /diff_drive_controller/odom:=/odom'
+                   ]
     )
 
     spawn_mecanum_controller = Node(
         package="controller_manager",
         executable="spawner",
         arguments=['mecanum_drive_controller', '--switch-timeout', '30', 
+                   '--param-file', controllers_file,
                    '--controller-ros-args', 
                    '-r /mecanum_drive_controller/tf_odometry:=/tf '
-                   '-r /mecanum_drive_controller/reference:=/cmd_vel'
+                   '-r /mecanum_drive_controller/reference:=/cmd_vel '
+                   '-r /mecanum_drive_controller/odometry:=/odom'
                   ]
     )
 
@@ -131,31 +143,47 @@ def generate_launch_description():
         package="ros_gz_bridge",
         executable="parameter_bridge",
         parameters=[{
-            'config_file': PathJoinSubstitution([bringup_pkg, 'config', 'horizon_bridge_ros2_control.yaml']),
+            'config_file': ros_gz_bridge_config_file,
             'use_sim_time': True,
         }]
     )
 
 
     launch_joint_state_controller = RegisterEventHandler(
-        OnProcessExit(target_action=spawn_horizon, on_exit=[spawn_jsb])
+        OnProcessExit(target_action=spawn_horizon, on_exit=[spawn_jsb]),
+        condition=IfCondition(
+            PythonExpression([
+                "'", LaunchConfiguration('drive'), "' == 'ros2_control'"
+            ])
+        )
     )
 
     launch_mecanum_controller = RegisterEventHandler(
         OnProcessExit(target_action=spawn_jsb, on_exit=[spawn_mecanum_controller]),
-        condition=IfCondition(PythonExpression([
-            "'", LaunchConfiguration('system'), "' == 'mecanum'"
-        ]))
-    )
+        condition=IfCondition(
+            AndSubstitution(
+                PythonExpression([
+            "'", LaunchConfiguration('system'), "' == 'mecanum'"]),
+
+                PythonExpression([
+            "'", LaunchConfiguration('drive'), "' == 'ros2_control'"])
+                )
+            )
+    )   
 
 
     launch_controllers_diff = RegisterEventHandler(
         OnProcessExit(target_action=spawn_jsb, on_exit=[spawn_diff_drive_controller]),
-        condition=IfCondition(PythonExpression([
-            "'", LaunchConfiguration('system'), "' == 'diff'"
-        ]))
-    )
+        condition=IfCondition(
+            AndSubstitution(
+                PythonExpression([
+            "'", LaunchConfiguration('system'), "' == 'diff'"]),
 
+                PythonExpression([
+            "'", LaunchConfiguration('drive'), "' == 'ros2_control'"])
+                )
+            )
+    )
 
 
     # SLAM
@@ -167,8 +195,19 @@ def generate_launch_description():
         }.items(),
     )
 
+    # Confirming that odom is alive before launching slam
+    odom_topic = PythonExpression([
+        "'odometry/filtered' if '", LaunchConfiguration('ekf'), "'.lower() == 'true' else '/odom'"
+    ])
+
+    wait_for_odom = ExecuteProcess(
+        cmd=['ros2', 'topic', 'echo', '--once', odom_topic, 'nav_msgs/msg/Odometry'],
+        output='log',
+        condition=IfCondition(LaunchConfiguration('slam'))
+    )
+
     launch_slam = RegisterEventHandler(
-        OnProcessExit(target_action=spawn_mecanum_controller, on_exit=[slam_toolbox]),
+        OnProcessExit(target_action=wait_for_odom, on_exit=[slam_toolbox]),
         condition=IfCondition(LaunchConfiguration('slam'))
     )
 
@@ -181,8 +220,19 @@ def generate_launch_description():
         }.items(),
     )
 
+    # wait for map topic from SLAM
+    map_topic = PythonExpression([
+        "'/map'"
+    ])
+
+    wait_for_map = ExecuteProcess(
+        cmd=['ros2', 'topic', 'echo', '--once', map_topic, 'nav_msgs/msg/OccupancyGrid'],
+        output='log',
+        condition=IfCondition(LaunchConfiguration('nav'))
+    )
+
     launch_nav = RegisterEventHandler(
-        OnProcessExit(target_action=spawn_mecanum_controller, on_exit=[nav_bringup]),
+        OnProcessExit(target_action=wait_for_map, on_exit=[nav_bringup]),
         condition=IfCondition(LaunchConfiguration('nav'))
     )
 
@@ -192,7 +242,7 @@ def generate_launch_description():
         executable='ekf_node',
         name='ekf_filter_node',
         output='screen',
-        parameters=[ekf_config_file, {'use_sim_time': 'true'}],
+        parameters=[ekf_config_file, {'use_sim_time': True}],
         condition=IfCondition(LaunchConfiguration('ekf'))
     )
 
@@ -223,10 +273,12 @@ def generate_launch_description():
         robot_state_publisher,
         spawn_horizon,
         ros_gz_bridge,
-        launch_mecanum_controller,
         launch_joint_state_controller,
+        launch_mecanum_controller,
         launch_controllers_diff,
+        wait_for_odom,
         launch_slam,
+        wait_for_map,
         launch_nav,
         ekf_node,
         rviz_node,
