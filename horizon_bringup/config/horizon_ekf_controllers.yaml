@@ -91,10 +91,9 @@ mecanum_drive_controller:
         max_deceleration: -0.2
 
       y:
+        max_velocity: 0.2
         max_acceleration: 0.2
         max_deceleration: -0.2
-        max_acceleration_reverse: -0.2
-        max_deceleration_reverse: 0.2
 
     angular:
       z:
