@@ -47,7 +47,7 @@ def generate_launch_description():
     use_arm = DeclareLaunchArgument('use_arm', default_value="false")
 
     drive = DeclareLaunchArgument('drive', default_value="gz")
-    system = DeclareLaunchArgument('system', default_value="mecanum")
+    system = DeclareLaunchArgument('system', default_value="diff")
 
     slam = DeclareLaunchArgument('slam', default_value="false")
     nav = DeclareLaunchArgument('nav', default_value='false')
@@ -114,7 +114,7 @@ def generate_launch_description():
         arguments=['diff_drive_controller', '--switch-timeout', '30',
                    '--param-file', controllers_file,
                    '--controller-ros-args', 
-                   '-r /diff_drive_controller/cmd_vel:=/cmd_vel '
+                   '-r /diff_drive_controller/cmd_vel:=/cmd_vel_drive '
                    '-r /diff_drive_controller/odom:=/odom'
                    ]
     )
@@ -126,7 +126,7 @@ def generate_launch_description():
                    '--param-file', controllers_file,
                    '--controller-ros-args', 
                    '-r /mecanum_drive_controller/tf_odometry:=/tf '
-                   '-r /mecanum_drive_controller/reference:=/cmd_vel '
+                   '-r /mecanum_drive_controller/reference:=/cmd_vel_drive '
                    '-r /mecanum_drive_controller/odometry:=/odom'
                   ]
     )
@@ -255,7 +255,7 @@ def generate_launch_description():
         }],
         remappings=[
             ('/cmd_vel_in', '/cmd_vel'),
-            ('/cmd_vel_out', '/mecanum_drive_controller/reference')
+            ('/cmd_vel_out', '/cmd_vel_drive')
         ]
     )
 
@@ -282,5 +282,5 @@ def generate_launch_description():
         launch_nav,
         ekf_node,
         rviz_node,
-        # twist_stamper
+        twist_stamper
     ])
