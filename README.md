@@ -48,8 +48,13 @@ horizon_robot/
 │   ├── launch/
 │   │   └── horizon_mecanum.launch.py         # Unified parameterized simulation & navigation bringup
 │   ├── maps/room/                            # Saved occupancy grid and serialized pose-graph maps
-│   └── worlds/
-│       └── room.sdf                          # 10 m x 10 m indoor test arena with obstacles
+│   └── worlds/                               # Gazebo Sim (.sdf) test environments
+│       ├── room.sdf                          # 10 m x 10 m indoor room with 3 box obstacles
+│       ├── maze.sdf                          # 20 m x 20 m multi-corridor indoor maze (TurtleBot 4)
+│       ├── office.sdf                        # 16 m x 12 m multi-room office with doorways and desks
+│       ├── tb3_sandbox.sdf                   # 8 m x 8 m cylindrical pillar obstacle arena (TurtleBot 3)
+│       ├── depot.sdf                         # Industrial depot environment (Gazebo Fuel)
+│       └── warehouse.sdf                     # Logistics warehouse with shelves and barriers (Gazebo Fuel)
 └── horizon_robot/                # Metapackage definition
 ```
 
