@@ -30,7 +30,7 @@ def generate_launch_description():
     slam_online_async_launch_file = PathJoinSubstitution([slam_pkg, 'launch', 'online_async_launch.py'])
     slam_online_async_config_file = PathJoinSubstitution([bringup_pkg, 'config', 'mapper_params_online_async.yaml'])
 
-    nav2_launch_file = PathJoinSubstitution([nav_pkg, "launch", "navigation_launch.py"])
+    nav2_launch_file = PathJoinSubstitution([nav_pkg, "launch", "bringup_launch.py"])
     nav2_params_file = PathJoinSubstitution([bringup_pkg, 
                                              'config', 
                                              PythonExpression(["'nav2_diff_params.yaml' if '", LaunchConfiguration('system'), "'.lower() == 'diff' else 'nav2_mecanum_params.yaml'"])])
@@ -218,7 +218,11 @@ def generate_launch_description():
         PythonLaunchDescriptionSource(nav2_launch_file),
         launch_arguments={
             'use_sim_time': 'true',
-            'params_file': nav2_params_file
+            'params_file': nav2_params_file,
+            'use_localization': 'False',
+            'use_keepout_zones': 'False',
+            'use_speed_zones': 'False',
+            'use_composition': 'False',
         }.items(),
     )
 
