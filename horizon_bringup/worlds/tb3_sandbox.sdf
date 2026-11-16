@@ -1,0 +1,120 @@
+<?xml version="1.0"?>
+<!-- Source: Adapted from https://github.com/ros-navigation/nav2_minimal_turtlebot_simulation/blob/main/nav2_minimal_tb3_sim/worlds/tb3_sandbox.sdf.xacro
+     and /opt/ros/lyrical/share/nav2_minimal_tb3_sim/models/turtlebot3_world/model.sdf
+     Self-contained SDF primitive version of the TurtleBot3 cylindrical obstacle arena (center (0,0) kept clear for default spawn). -->
+<sdf version="1.9">
+  <world name="tb3_sandbox">
+    <physics name="1ms" type="ignored">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"/>
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"/>
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
+    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+
+    <light name="sun" type="directional">
+      <cast_shadows>false</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.85 0.85 0.85 1</diffuse>
+      <specular>0.3 0.3 0.3 1</specular>
+      <direction>-0.5 0.1 -0.9</direction>
+    </light>
+
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><plane><normal>0 0 1</normal><size>100 100</size></plane></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><plane><normal>0 0 1</normal><size>100 100</size></plane></geometry>
+          <material><ambient>0.8 0.8 0.8 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Outer 8 m x 8 m arena walls -->
+    <model name="arena_walls">
+      <static>true</static>
+      <link name="wall_north">
+        <pose>4.0 0.0 0.5 0 0 0</pose>
+        <collision name="c"><geometry><box><size>0.15 8.15 1.0</size></box></geometry></collision>
+        <visual name="v">
+          <geometry><box><size>0.15 8.15 1.0</size></box></geometry>
+          <material><ambient>0.25 0.25 0.28 1</ambient><diffuse>0.25 0.25 0.28 1</diffuse></material>
+        </visual>
+      </link>
+      <link name="wall_south">
+        <pose>-4.0 0.0 0.5 0 0 0</pose>
+        <collision name="c"><geometry><box><size>0.15 8.15 1.0</size></box></geometry></collision>
+        <visual name="v">
+          <geometry><box><size>0.15 8.15 1.0</size></box></geometry>
+          <material><ambient>0.25 0.25 0.28 1</ambient><diffuse>0.25 0.25 0.28 1</diffuse></material>
+        </visual>
+      </link>
+      <link name="wall_east">
+        <pose>0.0 -4.0 0.5 0 0 0</pose>
+        <collision name="c"><geometry><box><size>8.15 0.15 1.0</size></box></geometry></collision>
+        <visual name="v">
+          <geometry><box><size>8.15 0.15 1.0</size></box></geometry>
+          <material><ambient>0.25 0.25 0.28 1</ambient><diffuse>0.25 0.25 0.28 1</diffuse></material>
+        </visual>
+      </link>
+      <link name="wall_west">
+        <pose>0.0 4.0 0.5 0 0 0</pose>
+        <collision name="c"><geometry><box><size>8.15 0.15 1.0</size></box></geometry></collision>
+        <visual name="v">
+          <geometry><box><size>8.15 0.15 1.0</size></box></geometry>
+          <material><ambient>0.25 0.25 0.28 1</ambient><diffuse>0.25 0.25 0.28 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- ROS Symbol Cylindrical Pillars (from turtlebot3_world, center (0,0) left open for robot spawn) -->
+    <model name="ros_symbol_pillars">
+      <static>true</static>
+      <link name="pillars">
+        <collision name="p11"><pose>-1.5 -1.5 0.25 0 0 0</pose><geometry><cylinder><radius>0.15</radius><length>0.5</length></cylinder></geometry></collision>
+        <visual name="v11"><pose>-1.5 -1.5 0.25 0 0 0</pose><geometry><cylinder><radius>0.15</radius><length>0.5</length></cylinder></geometry><material><ambient>0.9 0.9 0.9 1</ambient><diffuse>0.9 0.9 0.9 1</diffuse></material></visual>
+
+        <collision name="p12"><pose>-1.5 0.0 0.25 0 0 0</pose><geometry><cylinder><radius>0.15</radius><length>0.5</length></cylinder></geometry></collision>
+        <visual name="v12"><pose>-1.5 0.0 0.25 0 0 0</pose><geometry><cylinder><radius>0.15</radius><length>0.5</length></cylinder></geometry><material><ambient>0.9 0.9 0.9 1</ambient><diffuse>0.9 0.9 0.9 1</diffuse></material></visual>
+
+        <collision name="p13"><pose>-1.5 1.5 0.25 0 0 0</pose><geometry><cylinder><radius>0.15</radius><length>0.5</length></cylinder></geometry></collision>
+        <visual name="v13"><pose>-1.5 1.5 0.25 0 0 0</pose><geometry><cylinder><radius>0.15</radius><length>0.5</length></cylinder></geometry><material><ambient>0.9 0.9 0.9 1</ambient><diffuse>0.9 0.9 0.9 1</diffuse></material></visual>
+
+        <collision name="p21"><pose>0.0 -1.5 0.25 0 0 0</pose><geometry><cylinder><radius>0.15</radius><length>0.5</length></cylinder></geometry></collision>
+        <visual name="v21"><pose>0.0 -1.5 0.25 0 0 0</pose><geometry><cylinder><radius>0.15</radius><length>0.5</length></cylinder></geometry><material><ambient>0.9 0.9 0.9 1</ambient><diffuse>0.9 0.9 0.9 1</diffuse></material></visual>
+
+        <collision name="p23"><pose>0.0 1.5 0.25 0 0 0</pose><geometry><cylinder><radius>0.15</radius><length>0.5</length></cylinder></geometry></collision>
+        <visual name="v23"><pose>0.0 1.5 0.25 0 0 0</pose><geometry><cylinder><radius>0.15</radius><length>0.5</length></cylinder></geometry><material><ambient>0.9 0.9 0.9 1</ambient><diffuse>0.9 0.9 0.9 1</diffuse></material></visual>
+
+        <collision name="p31"><pose>1.5 -1.5 0.25 0 0 0</pose><geometry><cylinder><radius>0.15</radius><length>0.5</length></cylinder></geometry></collision>
+        <visual name="v31"><pose>1.5 -1.5 0.25 0 0 0</pose><geometry><cylinder><radius>0.15</radius><length>0.5</length></cylinder></geometry><material><ambient>0.9 0.9 0.9 1</ambient><diffuse>0.9 0.9 0.9 1</diffuse></material></visual>
+
+        <collision name="p32"><pose>1.5 0.0 0.25 0 0 0</pose><geometry><cylinder><radius>0.15</radius><length>0.5</length></cylinder></geometry></collision>
+        <visual name="v32"><pose>1.5 0.0 0.25 0 0 0</pose><geometry><cylinder><radius>0.15</radius><length>0.5</length></cylinder></geometry><material><ambient>0.9 0.9 0.9 1</ambient><diffuse>0.9 0.9 0.9 1</diffuse></material></visual>
+
+        <collision name="p33"><pose>1.5 1.5 0.25 0 0 0</pose><geometry><cylinder><radius>0.15</radius><length>0.5</length></cylinder></geometry></collision>
+        <visual name="v33"><pose>1.5 1.5 0.25 0 0 0</pose><geometry><cylinder><radius>0.15</radius><length>0.5</length></cylinder></geometry><material><ambient>0.9 0.9 0.9 1</ambient><diffuse>0.9 0.9 0.9 1</diffuse></material></visual>
+
+        <!-- Outer corner cylinders -->
+        <collision name="c_ne"><pose>2.7 2.7 0.25 0 0 0</pose><geometry><cylinder><radius>0.35</radius><length>0.5</length></cylinder></geometry></collision>
+        <visual name="vc_ne"><pose>2.7 2.7 0.25 0 0 0</pose><geometry><cylinder><radius>0.35</radius><length>0.5</length></cylinder></geometry><material><ambient>0.2 0.6 0.3 1</ambient><diffuse>0.2 0.6 0.3 1</diffuse></material></visual>
+
+        <collision name="c_nw"><pose>2.7 -2.7 0.25 0 0 0</pose><geometry><cylinder><radius>0.35</radius><length>0.5</length></cylinder></geometry></collision>
+        <visual name="vc_nw"><pose>2.7 -2.7 0.25 0 0 0</pose><geometry><cylinder><radius>0.35</radius><length>0.5</length></cylinder></geometry><material><ambient>0.2 0.6 0.3 1</ambient><diffuse>0.2 0.6 0.3 1</diffuse></material></visual>
+
+        <collision name="c_se"><pose>-2.7 2.7 0.25 0 0 0</pose><geometry><cylinder><radius>0.35</radius><length>0.5</length></cylinder></geometry></collision>
+        <visual name="vc_se"><pose>-2.7 2.7 0.25 0 0 0</pose><geometry><cylinder><radius>0.35</radius><length>0.5</length></cylinder></geometry><material><ambient>0.2 0.6 0.3 1</ambient><diffuse>0.2 0.6 0.3 1</diffuse></material></visual>
+
+        <collision name="c_sw"><pose>-2.7 -2.7 0.25 0 0 0</pose><geometry><cylinder><radius>0.35</radius><length>0.5</length></cylinder></geometry></collision>
+        <visual name="vc_sw"><pose>-2.7 -2.7 0.25 0 0 0</pose><geometry><cylinder><radius>0.35</radius><length>0.5</length></cylinder></geometry><material><ambient>0.2 0.6 0.3 1</ambient><diffuse>0.2 0.6 0.3 1</diffuse></material></visual>
+      </link>
+    </model>
+  </world>
+</sdf>

@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<!-- Multi-room indoor office world (16 m x 12 m) with central corridor, 4 rooms, doorways, and furniture obstacles.
+     Reference layout inspired by clearpathrobotics/clearpath_simulator (clearpath_gz/worlds/office.sdf) and
+     husarion/husarion_gz_worlds (worlds/husarion_office.sdf), built with self-contained SDF geometry for 1.0x RTF. -->
+<sdf version="1.9">
+  <world name="office">
+    <physics name="1ms" type="ignored">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"/>
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"/>
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
+    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.9 0.9 0.9 1</diffuse>
+      <direction>-0.4 0.2 -0.9</direction>
+    </light>
+
+    <model name="ground">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><plane><normal>0 0 1</normal><size>100 100</size></plane></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><plane><normal>0 0 1</normal><size>100 100</size></plane></geometry>
+          <material><ambient>0.78 0.78 0.78 1</ambient><diffuse>0.78 0.78 0.78 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Outer Perimeter Walls (16 m along X [-8, 8], 12 m along Y [-6, 6]) -->
+    <model name="office_structure">
+      <static>true</static>
+      <link name="walls">
+        <!-- North & South outer walls (X = +8, -8) -->
+        <collision name="c_north"><pose>8.0 0.0 1.0 0 0 0</pose><geometry><box><size>0.2 12.2 2.0</size></box></geometry></collision>
+        <visual name="v_north"><pose>8.0 0.0 1.0 0 0 0</pose><geometry><box><size>0.2 12.2 2.0</size></box></geometry><material><ambient>0.65 0.67 0.70 1</ambient><diffuse>0.65 0.67 0.70 1</diffuse></material></visual>
+
+        <collision name="c_south"><pose>-8.0 0.0 1.0 0 0 0</pose><geometry><box><size>0.2 12.2 2.0</size></box></geometry></collision>
+        <visual name="v_south"><pose>-8.0 0.0 1.0 0 0 0</pose><geometry><box><size>0.2 12.2 2.0</size></box></geometry><material><ambient>0.65 0.67 0.70 1</ambient><diffuse>0.65 0.67 0.70 1</diffuse></material></visual>
+
+        <!-- West & East outer walls (Y = +6, -6) -->
+        <collision name="c_west"><pose>0.0 6.0 1.0 0 0 0</pose><geometry><box><size>16.2 0.2 2.0</size></box></geometry></collision>
+        <visual name="v_west"><pose>0.0 6.0 1.0 0 0 0</pose><geometry><box><size>16.2 0.2 2.0</size></box></geometry><material><ambient>0.65 0.67 0.70 1</ambient><diffuse>0.65 0.67 0.70 1</diffuse></material></visual>
+
+        <collision name="c_east"><pose>0.0 -6.0 1.0 0 0 0</pose><geometry><box><size>16.2 0.2 2.0</size></box></geometry></collision>
+        <visual name="v_east"><pose>0.0 -6.0 1.0 0 0 0</pose><geometry><box><size>16.2 0.2 2.0</size></box></geometry><material><ambient>0.65 0.67 0.70 1</ambient><diffuse>0.65 0.67 0.70 1</diffuse></material></visual>
+
+        <!-- Central Corridor Walls (Y = +1.5 and Y = -1.5) with 1.4 m doorways into rooms -->
+        <!-- Left corridor wall (Y = +1.5): 3 segments leaving doorways at X = -4.0 and X = +4.0 -->
+        <collision name="c_corr_l1"><pose>-6.35 1.5 1.0 0 0 0</pose><geometry><box><size>3.3 0.15 2.0</size></box></geometry></collision>
+        <visual name="v_corr_l1"><pose>-6.35 1.5 1.0 0 0 0</pose><geometry><box><size>3.3 0.15 2.0</size></box></geometry><material><ambient>0.75 0.72 0.65 1</ambient><diffuse>0.75 0.72 0.65 1</diffuse></material></visual>
+
+        <collision name="c_corr_l2"><pose>0.0 1.5 1.0 0 0 0</pose><geometry><box><size>6.6 0.15 2.0</size></box></geometry></collision>
+        <visual name="v_corr_l2"><pose>0.0 1.5 1.0 0 0 0</pose><geometry><box><size>6.6 0.15 2.0</size></box></geometry><material><ambient>0.75 0.72 0.65 1</ambient><diffuse>0.75 0.72 0.65 1</diffuse></material></visual>
+
+        <collision name="c_corr_l3"><pose>6.35 1.5 1.0 0 0 0</pose><geometry><box><size>3.3 0.15 2.0</size></box></geometry></collision>
+        <visual name="v_corr_l3"><pose>6.35 1.5 1.0 0 0 0</pose><geometry><box><size>3.3 0.15 2.0</size></box></geometry><material><ambient>0.75 0.72 0.65 1</ambient><diffuse>0.75 0.72 0.65 1</diffuse></material></visual>
+
+        <!-- Right corridor wall (Y = -1.5): 3 segments leaving doorways at X = -4.0 and X = +4.0 -->
+        <collision name="c_corr_r1"><pose>-6.35 -1.5 1.0 0 0 0</pose><geometry><box><size>3.3 0.15 2.0</size></box></geometry></collision>
+        <visual name="v_corr_r1"><pose>-6.35 -1.5 1.0 0 0 0</pose><geometry><box><size>3.3 0.15 2.0</size></box></geometry><material><ambient>0.75 0.72 0.65 1</ambient><diffuse>0.75 0.72 0.65 1</diffuse></material></visual>
+
+        <collision name="c_corr_r2"><pose>0.0 -1.5 1.0 0 0 0</pose><geometry><box><size>6.6 0.15 2.0</size></box></geometry></collision>
+        <visual name="v_corr_r2"><pose>0.0 -1.5 1.0 0 0 0</pose><geometry><box><size>6.6 0.15 2.0</size></box></geometry><material><ambient>0.75 0.72 0.65 1</ambient><diffuse>0.75 0.72 0.65 1</diffuse></material></visual>
+
+        <collision name="c_corr_r3"><pose>6.35 -1.5 1.0 0 0 0</pose><geometry><box><size>3.3 0.15 2.0</size></box></geometry></collision>
+        <visual name="v_corr_r3"><pose>6.35 -1.5 1.0 0 0 0</pose><geometry><box><size>3.3 0.15 2.0</size></box></geometry><material><ambient>0.75 0.72 0.65 1</ambient><diffuse>0.75 0.72 0.65 1</diffuse></material></visual>
+
+        <!-- Room Divider Walls at X = 0 (with internal connecting doorways at Y = +4.8 and Y = -4.8) -->
+        <collision name="c_div_l"><pose>0.0 2.75 1.0 0 0 0</pose><geometry><box><size>0.15 2.5 2.0</size></box></geometry></collision>
+        <visual name="v_div_l"><pose>0.0 2.75 1.0 0 0 0</pose><geometry><box><size>0.15 2.5 2.0</size></box></geometry><material><ambient>0.75 0.72 0.65 1</ambient><diffuse>0.75 0.72 0.65 1</diffuse></material></visual>
+
+        <collision name="c_div_r"><pose>0.0 -2.75 1.0 0 0 0</pose><geometry><box><size>0.15 2.5 2.0</size></box></geometry></collision>
+        <visual name="v_div_r"><pose>0.0 -2.75 1.0 0 0 0</pose><geometry><box><size>0.15 2.5 2.0</size></box></geometry><material><ambient>0.75 0.72 0.65 1</ambient><diffuse>0.75 0.72 0.65 1</diffuse></material></visual>
+
+        <!-- Office Desks / Conference Tables Inside the 4 Rooms -->
+        <collision name="c_desk_nw"><pose>4.5 3.8 0.4 0 0 0</pose><geometry><box><size>2.0 1.0 0.8</size></box></geometry></collision>
+        <visual name="v_desk_nw"><pose>4.5 3.8 0.4 0 0 0</pose><geometry><box><size>2.0 1.0 0.8</size></box></geometry><material><ambient>0.55 0.38 0.22 1</ambient><diffuse>0.55 0.38 0.22 1</diffuse></material></visual>
+
+        <collision name="c_desk_ne"><pose>4.5 -3.8 0.4 0 0 0</pose><geometry><box><size>2.0 1.0 0.8</size></box></geometry></collision>
+        <visual name="v_desk_ne"><pose>4.5 -3.8 0.4 0 0 0</pose><geometry><box><size>2.0 1.0 0.8</size></box></geometry><material><ambient>0.55 0.38 0.22 1</ambient><diffuse>0.55 0.38 0.22 1</diffuse></material></visual>
+
+        <collision name="c_desk_sw"><pose>-4.5 3.8 0.4 0 0 0</pose><geometry><box><size>1.6 1.2 0.8</size></box></geometry></collision>
+        <visual name="v_desk_sw"><pose>-4.5 3.8 0.4 0 0 0</pose><geometry><box><size>1.6 1.2 0.8</size></box></geometry><material><ambient>0.30 0.48 0.65 1</ambient><diffuse>0.30 0.48 0.65 1</diffuse></material></visual>
+
+        <collision name="c_desk_se"><pose>-4.5 -3.8 0.4 0 0 0</pose><geometry><box><size>1.6 1.2 0.8</size></box></geometry></collision>
+        <visual name="v_desk_se"><pose>-4.5 -3.8 0.4 0 0 0</pose><geometry><box><size>1.6 1.2 0.8</size></box></geometry><material><ambient>0.30 0.48 0.65 1</ambient><diffuse>0.30 0.48 0.65 1</diffuse></material></visual>
+      </link>
+    </model>
+  </world>
+</sdf>

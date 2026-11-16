@@ -16,7 +16,7 @@ def generate_launch_description():
     nav_pkg = FindPackageShare('nav2_bringup')
 
     horizon_urdf_file = PathJoinSubstitution([description_pkg, 'urdf', 'horizon.urdf.xacro'])
-    world_file = PathJoinSubstitution([bringup_pkg, 'worlds', 'room.sdf'])
+    world_file = PathJoinSubstitution([bringup_pkg, 'worlds', LaunchConfiguration('world')])
 
     controllers_file = PathJoinSubstitution([bringup_pkg, 
                                              'config', 
@@ -48,6 +48,7 @@ def generate_launch_description():
 
     use_arm = DeclareLaunchArgument('use_arm', default_value="false")
 
+    world = DeclareLaunchArgument('world', default_value='room.sdf')
     drive = DeclareLaunchArgument('drive', default_value="gz")
     system = DeclareLaunchArgument('system', default_value="diff")
 
@@ -274,7 +275,7 @@ def generate_launch_description():
 
 
     return LaunchDescription([
-        x_pos, y_pos, z_pos, yaw_pos, use_arm, drive, system, slam, nav, ekf,
+        x_pos, y_pos, z_pos, yaw_pos, use_arm, drive, system, slam, nav, ekf, world,
         gz_launch,
         robot_state_publisher,
         spawn_horizon,
