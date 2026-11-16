@@ -31,7 +31,9 @@ def generate_launch_description():
     slam_online_async_config_file = PathJoinSubstitution([bringup_pkg, 'config', 'mapper_params_online_async.yaml'])
 
     nav2_launch_file = PathJoinSubstitution([nav_pkg, "launch", "navigation_launch.py"])
-    nav2_params_file = PathJoinSubstitution([bringup_pkg, 'config', 'nav2_params.yaml'])
+    nav2_params_file = PathJoinSubstitution([bringup_pkg, 
+                                             'config', 
+                                             PythonExpression(["'nav2_diff_params.yaml' if '", LaunchConfiguration('system'), "'.lower() == 'diff' else 'nav2_mecanum_params.yaml'"])])
 
     ekf_config_file = PathJoinSubstitution([bringup_pkg, 'config', 'horizon_ekf_params.yaml'])
 
