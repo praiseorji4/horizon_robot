@@ -56,6 +56,8 @@ def generate_launch_description():
     nav = DeclareLaunchArgument('nav', default_value='false')
     ekf = DeclareLaunchArgument('ekf', default_value='false')
 
+    # Experiments
+    ground_truth = DeclareLaunchArgument('ground_truth', default_value="false")
 
 
 
@@ -64,7 +66,9 @@ def generate_launch_description():
                  ' drive:=', LaunchConfiguration('drive'), 
                  ' use_arm:=', LaunchConfiguration('use_arm'),
                  ' controllers_file:=', controllers_file,
-                 ' system:=', LaunchConfiguration('system')]), 
+                 ' system:=', LaunchConfiguration('system'),
+                 ' ground_truth:=', LaunchConfiguration('ground_truth'),
+                 ]), 
                 value_type=str)
 
     
@@ -275,7 +279,7 @@ def generate_launch_description():
 
 
     return LaunchDescription([
-        x_pos, y_pos, z_pos, yaw_pos, use_arm, drive, system, slam, nav, ekf, world,
+        x_pos, y_pos, z_pos, yaw_pos, use_arm, drive, system, slam, nav, ekf, world, ground_truth,
         gz_launch,
         robot_state_publisher,
         spawn_horizon,

@@ -4,10 +4,12 @@
   <xacro:arg name="drive" default="gz"/>
   <xacro:arg name="system" default="diff" />
   <xacro:arg name="controllers_file" default=""/>
+  <xacro:arg name="ground_truth" default="false"/>
 
   <!--Turning args to property to allow for robotness -->
   <xacro:property name="drive" value="$(arg drive)" />
   <xacro:property name="system" value="$(arg system)"/>
+  <xacro:property name="ground_truth" value="$(arg ground_truth)"/>
 
   <!--Include Files-->
   <xacro:include filename="$(find horizon_description)/urdf/materials.xacro" />
