@@ -155,6 +155,13 @@ def generate_launch_description():
         }]
     )
 
+    ros_gz_image_bridge = Node(
+        package='ros_gz_image',
+        executable='image_bridge',
+        arguments=['/picam/image_raw', '/oakd/image', '/oakd/depth_image'],
+        parameters=[{'use_sim_time': True, 'lazy': True}] # todo: switch to yaml
+    )
+
 
     launch_joint_state_controller = RegisterEventHandler(
         OnProcessExit(target_action=spawn_horizon, on_exit=[spawn_jsb]),
@@ -284,6 +291,7 @@ def generate_launch_description():
         robot_state_publisher,
         spawn_horizon,
         ros_gz_bridge,
+        ros_gz_image_bridge,
         launch_joint_state_controller,
         launch_mecanum_controller,
         launch_controllers_diff,

@@ -15,7 +15,9 @@ Panels:
         - /Odometry1/Shape1
         - /Map2
         - /Image1
+        - /Image1/Topic1
         - /Image2
+        - /Image2/Topic1
         - /Image3
         - /Image3/Topic1
         - /DepthCloud1
@@ -403,7 +405,7 @@ Visualization Manager:
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Transport Override: ""
+        Transport Override: compressed
         Value: /picam/image_raw
       Value: true
     - Class: rviz_default_plugins/Image
@@ -418,7 +420,7 @@ Visualization Manager:
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Transport Override: ""
+        Transport Override: compressed
         Value: /oakd/image
       Value: true
     - Class: rviz_default_plugins/Image
@@ -429,11 +431,11 @@ Visualization Manager:
       Name: Image
       Normalize Range: false
       Topic:
-        Depth: 5
+        Depth: 1
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Best Effort
-        Transport Override: ""
+        Transport Override: compressedDepth
         Value: /oakd/depth_image
       Value: true
     - Alpha: 1
@@ -560,5 +562,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 1468
-  X: 134
-  Y: 64
+  X: 72
+  Y: 286
