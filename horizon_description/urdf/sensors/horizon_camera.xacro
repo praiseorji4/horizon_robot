@@ -118,9 +118,15 @@
           <format>R8G8B8</format>
         </image>
         <clip>
-          <near>0.3</near>
-          <far>8.0</far>
+          <near>0.1</near>
+          <far>15.0</far>
         </clip>
+        <depth_camera>
+          <clip>
+            <near>0.3</near>
+            <far>8.0</far>
+          </clip>
+        </depth_camera>
       </camera>
     </sensor>
   </gazebo>

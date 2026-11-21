@@ -26,6 +26,8 @@ def generate_launch_description():
                                                       'config', 
                                                       PythonExpression(["'horizon_bridge_ros2_control.yaml' if '", LaunchConfiguration('drive'), "'.lower() == 'ros2_control' else 'horizon_bridge_gazebo.yaml'"])])
 
+    ros_gz_image_bridge_config_file = PathJoinSubstitution([bringup_pkg, 'config', 'horizon_image_bridge.yaml'])
+
     gz_launch_file = PathJoinSubstitution([FindPackageShare('ros_gz_sim'), 'launch', 'gz_sim.launch.py'])
     slam_online_async_launch_file = PathJoinSubstitution([slam_pkg, 'launch', 'online_async_launch.py'])
     slam_online_async_config_file = PathJoinSubstitution([bringup_pkg, 'config', 'mapper_params_online_async.yaml'])
@@ -159,7 +161,11 @@ def generate_launch_description():
         package='ros_gz_image',
         executable='image_bridge',
         arguments=['/picam/image_raw', '/oakd/image', '/oakd/depth_image'],
-        parameters=[{'use_sim_time': True, 'lazy': True}] # todo: switch to yaml
+        parameters=[ros_gz_image_bridge_config_file],
+        remappings=[
+            ('/oakd/image', '/camera/color/image_raw'),
+            ('/oakd/depth_image', '/camera/depth/image_raw')
+        ]
     )
 
 
