@@ -13,11 +13,20 @@
 
 <gazebo reference="front_left_wheel_link">
   <material>${body_color}</material>
-  <xacro:if value="${system == 'diff'}">
-    <mu1>0.2</mu1>
-    <mu2>0.2</mu2>
+  <xacro:if value="${wheel == 'plain'}">
+    <collision>
+      <surface>
+        <friction>
+          <ode>
+            <mu>0.8</mu>
+            <mu2>0.8</mu2>
+            <fdir1 gz:expressed_in="base_footprint">1 0 0</fdir1>
+          </ode>
+        </friction>
+      </surface>
+    </collision>
   </xacro:if>
-  <xacro:if value="${system =='mecanum'}">
+  <xacro:if value="${wheel =='mecanum'}">
     <collision>
       <surface>
         <friction>
@@ -35,11 +44,20 @@
 
 <gazebo reference="front_right_wheel_link">
   <material>${body_color}</material>
-  <xacro:if value="${system == 'diff'}">
-    <mu1>0.2</mu1>
-    <mu2>0.2</mu2>
+  <xacro:if value="${wheel == 'plain'}">
+    <collision>
+      <surface>
+        <friction>
+          <ode>
+            <mu>0.8</mu>
+            <mu2>0.8</mu2>
+            <fdir1 gz:expressed_in="base_footprint">1 0 0</fdir1>
+          </ode>
+        </friction>
+      </surface>
+    </collision>
   </xacro:if>
-  <xacro:if value="${system == 'mecanum'}">
+  <xacro:if value="${wheel == 'mecanum'}">
     <collision>
       <surface>
         <friction>
@@ -57,11 +75,20 @@
 
 <gazebo reference="rear_left_wheel_link">
   <material>${body_color}</material>
-  <xacro:if value="${system == 'diff'}">
-    <mu1>0.2</mu1>
-    <mu2>0.2</mu2>
+  <xacro:if value="${wheel == 'plain'}">
+    <collision>
+      <surface>
+        <friction>
+          <ode>
+            <mu>0.8</mu>
+            <mu2>0.8</mu2>
+            <fdir1 gz:expressed_in="base_footprint">1 0 0</fdir1>
+          </ode>
+        </friction>
+      </surface>
+    </collision>
   </xacro:if>
-  <xacro:if value="${system == 'mecanum'}">
+  <xacro:if value="${wheel == 'mecanum'}">
     <collision>
       <surface>
         <friction>
@@ -79,11 +106,20 @@
 
 <gazebo reference="rear_right_wheel_link">
   <material>${body_color}</material>
-  <xacro:if value="${system == 'diff'}">
-    <mu1>0.2</mu1>
-    <mu2>0.2</mu2>
+  <xacro:if value="${wheel == 'plain'}">
+    <collision>
+      <surface>
+        <friction>
+          <ode>
+            <mu>0.8</mu>
+            <mu2>0.8</mu2>
+            <fdir1 gz:expressed_in="base_footprint">1 0 0</fdir1>
+          </ode>
+        </friction>
+      </surface>
+    </collision>
   </xacro:if>
-  <xacro:if value="${system == 'mecanum'}">
+  <xacro:if value="${wheel == 'mecanum'}">
     <collision>
       <surface>
         <friction>
@@ -185,14 +221,14 @@
 </gazebo>-->
 
   <!--Gazebo's built-in diff drive system-->
-  <xacro:if value="${drive == 'gz'}">
+  <xacro:if value="${drive == 'gz' and controller == 'diff'}">
     <gazebo>
       <plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
         <left_joint>base_front_left_wheel_joint</left_joint>
         <right_joint>base_front_right_wheel_joint</right_joint>
         <left_joint>base_rear_left_wheel_joint</left_joint>
         <right_joint>base_rear_right_wheel_joint</right_joint>
-        <wheel_separation>0.64</wheel_separation>
+        <wheel_separation>${wheel_separation}</wheel_separation>
         <wheel_radius>${wheel_radius}</wheel_radius>
         <topic>model/horizon_bot/cmd_vel</topic>
         <frame_id>odom</frame_id>
