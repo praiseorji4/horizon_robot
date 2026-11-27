@@ -1,6 +1,6 @@
 from launch import LaunchDescription
 from launch.event_handlers import OnProcessExit
-from launch.actions import DeclareLaunchArgument, ExecuteProcess, IncludeLaunchDescription, RegisterEventHandler
+from launch.actions import DeclareLaunchArgument, ExecuteProcess, IncludeLaunchDescription, RegisterEventHandler, OpaqueFunction
 from launch_ros.actions import Node
 from launch.substitutions import AndSubstitution, Command, LaunchConfiguration, PathJoinSubstitution, PythonExpression
 from launch_ros.parameter_descriptions import ParameterValue
@@ -8,6 +8,16 @@ from launch_ros.substitutions import FindPackageShare
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 
+def validate_drive_kinematics(context, *args, **kwargs):
+    # Extract the runtime string values
+    wheel = context.launch_configurations.get('wheel')
+    controller = context.launch_configurations.get('controller')
+
+    if wheel == 'plain' and controller == 'mecanum':
+        raise RuntimeError(
+            f"FATAL KINEMATIC MISMATCH: Cannot map controller='{controller}' "
+            f"to wheel='{wheel}' becase mecanum controller requires omnidirectional wheels."
+        )
 
 def generate_launch_description():
     description_pkg = FindPackageShare('horizon_description')
@@ -20,13 +30,16 @@ def generate_launch_description():
 
     controllers_file = PathJoinSubstitution([bringup_pkg, 
                                              'config', 
+                                             'controllers',
                                              PythonExpression(["'horizon_ekf_controllers.yaml' if '", LaunchConfiguration('ekf'), "'.lower() == 'true' else 'horizon_mecanum_controllers.yaml'" ])])
+
 
     ros_gz_bridge_config_file = PathJoinSubstitution([bringup_pkg, 
                                                       'config', 
+                                                      'bridges',
                                                       PythonExpression(["'horizon_bridge_ros2_control.yaml' if '", LaunchConfiguration('drive'), "'.lower() == 'ros2_control' else 'horizon_bridge_gazebo.yaml'"])])
 
-    ros_gz_image_bridge_config_file = PathJoinSubstitution([bringup_pkg, 'config', 'horizon_image_bridge.yaml'])
+    ros_gz_image_bridge_config_file = PathJoinSubstitution([bringup_pkg, 'config', 'bridges', 'horizon_image_bridge.yaml'])
 
     gz_launch_file = PathJoinSubstitution([FindPackageShare('ros_gz_sim'), 'launch', 'gz_sim.launch.py'])
     slam_online_async_launch_file = PathJoinSubstitution([slam_pkg, 'launch', 'online_async_launch.py'])
@@ -35,7 +48,7 @@ def generate_launch_description():
     nav2_launch_file = PathJoinSubstitution([nav_pkg, "launch", "navigation_launch.py"])
     nav2_params_file = PathJoinSubstitution([bringup_pkg, 
                                              'config', 
-                                             PythonExpression(["'nav2_diff_params.yaml' if '", LaunchConfiguration('system'), "'.lower() == 'diff' else 'nav2_mecanum_params.yaml'"])])
+                                             PythonExpression(["'nav2_diff_params.yaml' if '", LaunchConfiguration('controller'), "'.lower() == 'diff' else 'nav2_mecanum_params.yaml'"])])
 
     ekf_config_file = PathJoinSubstitution([bringup_pkg, 'config', 'horizon_ekf_params.yaml'])
 
@@ -51,8 +64,12 @@ def generate_launch_description():
     use_arm = DeclareLaunchArgument('use_arm', default_value="false")
 
     world = DeclareLaunchArgument('world', default_value='room.sdf')
-    drive = DeclareLaunchArgument('drive', default_value="gz")
-    system = DeclareLaunchArgument('system', default_value="diff")
+    drive = DeclareLaunchArgument('drive', default_value="ros2_control")
+
+    wheel = DeclareLaunchArgument('wheel', default_value="mecanum", choices=['mecanum', 'plain'])
+    controller = DeclareLaunchArgument('controller', default_value="mecanum", choices=['mecanum', 'diff'])
+
+    validation_action = OpaqueFunction(function=validate_drive_kinematics)
 
     slam = DeclareLaunchArgument('slam', default_value="false")
     nav = DeclareLaunchArgument('nav', default_value='false')
@@ -68,7 +85,8 @@ def generate_launch_description():
                  ' drive:=', LaunchConfiguration('drive'), 
                  ' use_arm:=', LaunchConfiguration('use_arm'),
                  ' controllers_file:=', controllers_file,
-                 ' system:=', LaunchConfiguration('system'),
+                 ' wheel:=', LaunchConfiguration('wheel'),
+                 ' controller:=', LaunchConfiguration('controller'),
                  ' ground_truth:=', LaunchConfiguration('ground_truth'),
                  ]), 
                 value_type=str)
@@ -122,6 +140,7 @@ def generate_launch_description():
         executable='spawner',
         arguments=['diff_drive_controller', '--switch-timeout', '30',
                    '--param-file', controllers_file,
+                   '--param-file', PathJoinSubstitution([description_pkg, 'config', 'wheels', [LaunchConfiguration('wheel'), '.yaml']]),
                    '--controller-ros-args', 
                    '-r /diff_drive_controller/cmd_vel:=/cmd_vel_drive '
                    '-r /diff_drive_controller/odom:=/odom'
@@ -183,7 +202,7 @@ def generate_launch_description():
         condition=IfCondition(
             AndSubstitution(
                 PythonExpression([
-            "'", LaunchConfiguration('system'), "' == 'mecanum'"]),
+            "'", LaunchConfiguration('controller'), "' == 'mecanum'"]),
 
                 PythonExpression([
             "'", LaunchConfiguration('drive'), "' == 'ros2_control'"])
@@ -197,7 +216,7 @@ def generate_launch_description():
         condition=IfCondition(
             AndSubstitution(
                 PythonExpression([
-            "'", LaunchConfiguration('system'), "' == 'diff'"]),
+            "'", LaunchConfiguration('controller'), "' == 'diff'"]),
 
                 PythonExpression([
             "'", LaunchConfiguration('drive'), "' == 'ros2_control'"])
@@ -288,7 +307,8 @@ def generate_launch_description():
 
 
     return LaunchDescription([
-        x_pos, y_pos, z_pos, yaw_pos, use_arm, drive, system, slam, nav, ekf, world, ground_truth,
+        x_pos, y_pos, z_pos, yaw_pos, use_arm, drive, wheel, controller, slam, nav, ekf, world, ground_truth,
+        validation_action,
         gz_launch,
         robot_state_publisher,
         spawn_horizon,

@@ -1,15 +1,33 @@
 <?xml version='1.0' encoding='utf-8'?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="horizon_bot">
   <xacro:arg name="use_arm" default="false"/>
-  <xacro:arg name="drive" default="gz"/>
-  <xacro:arg name="system" default="diff" />
+  <xacro:arg name="drive" default="ros2_control"/>
+  <xacro:arg name="wheel" default="mecanum" />
+  <xacro:arg name="controller" default="mecanum" />
   <xacro:arg name="controllers_file" default=""/>
   <xacro:arg name="ground_truth" default="false"/>
 
+
+
   <!--Turning args to property to allow for robotness -->
   <xacro:property name="drive" value="$(arg drive)" />
-  <xacro:property name="system" value="$(arg system)"/>
+  <xacro:property name="wheel" value="$(arg wheel)"/>
+  <xacro:property name="wheel_check" value="${xacro.fatal('FATAL: wheel must be mecanum or plain. Received: ' + wheel) if wheel not in ['mecanum', 'plain'] else ''}" lazy_eval="false"/>
+  <xacro:property name="controller" value="$(arg controller)"/>
   <xacro:property name="ground_truth" value="$(arg ground_truth)"/>
+
+  <!--Setting this here since base needs it-->
+  <!--Setting wheel separation and radius from the same yaml file-->
+  <xacro:property name="wheel_config" value="${xacro.load_yaml('$(find horizon_description)/config/wheels/' + wheel + '.yaml')}" lazy_eval="false"/>
+  <xacro:property name="wheel_separation" value="${wheel_config['diff_drive_controller']['ros__parameters']['wheel_separation']}"/> 
+  <xacro:property name="wheel_radius" value="${wheel_config['diff_drive_controller']['ros__parameters']['wheel_radius']}"/> 
+  <xacro:property name="wheel_width" value="${wheel_config['wheel_params']['ros__parameters']['wheel_width']}"/> 
+  <xacro:property name="wheel_mass" value="${wheel_config['wheel_params']['ros__parameters']['wheel_mass']}"/> 
+
+  <!--For Reference Radius-->
+  <xacro:property name="mecanum_wheel_config" value="${xacro.load_yaml('$(find horizon_description)/config/wheels/mecanum.yaml')}" lazy_eval="false"/>
+  <xacro:property name="reference_radius" value="${mecanum_wheel_config['diff_drive_controller']['ros__parameters']['wheel_radius']}"/> 
+
 
   <!--Include Files-->
   <xacro:include filename="$(find horizon_description)/urdf/materials.xacro" />
